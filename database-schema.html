@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performans Analiz Sistemi - Veritabanı Şeması</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .database-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+        }
+
+        .db-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .db-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .db-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .db-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .db-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .db-section:nth-child(2) { animation-delay: 0.1s; }
+        .db-section:nth-child(3) { animation-delay: 0.2s; }
+        .db-section:nth-child(4) { animation-delay: 0.3s; }
+        .db-section:nth-child(5) { animation-delay: 0.4s; }
+        .db-section:nth-child(6) { animation-delay: 0.5s; }
+        .db-section:nth-child(7) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .db-section h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .db-section h2 i {
+            color: #667eea;
+        }
+
+        .table-schema {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .table-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .table-header h3 {
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .table-header i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .table-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .field-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .field-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+
+        .field-item:last-child {
+            border-bottom: none;
+        }
+
+        .field-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .field-type {
+            background: #667eea;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .field-constraints {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.2rem;
+        }
+
+        .relationship-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .relationship-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .relationship-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+        .relationship-item:hover {
+            border-color: #667eea;
+        }
+
+        .relationship-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .relationship-type {
+            background: #28a745;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .relationship-type.many-to-many {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .relationship-type.one-to-many {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .data-flow-diagram {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: white;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .flow-step {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .flow-step-number {
+            background: white;
+            color: #667eea;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .flow-step h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .flow-step p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .back-btn i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .index-info {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .index-info h4 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+
+        .index-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .index-list li {
+            padding: 0.3rem 0;
+            color: #333;
+        }
+
+        .index-list li::before {
+            content: "•";
+            color: #1976d2;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .db-container {
+                padding: 0 1rem;
+            }
+            
+            .db-header h1 {
+                font-size: 2rem;
+            }
+            
+            .table-schema {
+                grid-template-columns: 1fr;
+            }
+            
+            .relationship-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="database-page">
+        <div class="db-container">
+            <div class="db-header">
+                <h1><i class="fas fa-database"></i> Veritabanı Şeması</h1>
+                <p>Performans Analiz Sistemi'nin detaylı veritabanı tasarımı ve ilişkileri</p>
+            </div>
+
+            <!-- Ana Tablolar -->
+            <div class="db-section">
+                <h2><i class="fas fa-table"></i> Ana Veritabanı Tabloları</h2>
+                <div class="table-schema">
+                    <!-- Users Tablosu -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-users"></i>
+                            <h3>Users</h3>
+                        </div>
+                        <div class="table-description">
+                            Sistem kullanıcıları ve çalışan bilgileri
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Id</span>
+                                <span class="field-type">INT (PK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">EmployeeId</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">FirstName</span>
+                                <span class="field-type">NVARCHAR(100)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">LastName</span>
+                                <span class="field-type">NVARCHAR(100)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Email</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">DepartmentId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ManagerId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">CreatedAt</span>
+                                <span class="field-type">DATETIME2</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">LastLoginAt</span>
+                                <span class="field-type">DATETIME2</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- ActivityLogs Tablosu -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-list-alt"></i>
+                            <h3>ActivityLogs</h3>
+                        </div>
+                        <div class="table-description">
+                            Kullanıcı aktivite kayıtları
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Id</span>
+                                <span class="field-type">BIGINT (PK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">UserId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">WindowTitle</span>
+                                <span class="field-type">NVARCHAR(500)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ApplicationName</span>
+                                <span class="field-type">NVARCHAR(200)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ProcessName</span>
+                                <span class="field-type">NVARCHAR(200)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">StartTime</span>
+                                <span class="field-type">DATETIME2</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">EndTime</span>
+                                <span class="field-type">DATETIME2</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Duration</span>
+                                <span class="field-type">INT</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">CategoryId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">IsProductive</span>
+                                <span class="field-type">BIT</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Categories Tablosu -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-tags"></i>
+                            <h3>Categories</h3>
+                        </div>
+                        <div class="table-description">
+                            Aktivite kategorileri ve alt kategoriler
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Id</span>
+                                <span class="field-type">INT (PK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Name</span>
+                                <span class="field-type">NVARCHAR(100)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Description</span>
+                                <span class="field-type">NVARCHAR(500)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ParentId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Level</span>
+                                <span class="field-type">INT</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">IsProductive</span>
+                                <span class="field-type">BIT</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Color</span>
+                                <span class="field-type">VARCHAR(7)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- CategoryKeywords Tablosu -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-key"></i>
+                            <h3>CategoryKeywords</h3>
+                        </div>
+                        <div class="table-description">
+                            Kategori eşleştirme anahtar kelimeleri
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Id</span>
+                                <span class="field-type">INT (PK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">CategoryId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Keyword</span>
+                                <span class="field-type">NVARCHAR(200)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">KeywordType</span>
+                                <span class="field-type">VARCHAR(20)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Priority</span>
+                                <span class="field-type">INT</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Departments Tablosu -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-building"></i>
+                            <h3>Departments</h3>
+                        </div>
+                        <div class="table-description">
+                            Organizasyon departmanları
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Id</span>
+                                <span class="field-type">INT (PK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Name</span>
+                                <span class="field-type">NVARCHAR(100)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Code</span>
+                                <span class="field-type">VARCHAR(20)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ManagerId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Reports Tablosu -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>Reports</h3>
+                        </div>
+                        <div class="table-description">
+                            Oluşturulan raporlar
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Id</span>
+                                <span class="field-type">INT (PK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Name</span>
+                                <span class="field-type">NVARCHAR(200)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ReportType</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">UserId</span>
+                                <span class="field-type">INT (FK)</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">StartDate</span>
+                                <span class="field-type">DATE</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">EndDate</span>
+                                <span class="field-type">DATE</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">GeneratedAt</span>
+                                <span class="field-type">DATETIME2</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Status</span>
+                                <span class="field-type">VARCHAR(20)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tablo İlişkileri -->
+            <div class="db-section">
+                <h2><i class="fas fa-project-diagram"></i> Tablo İlişkileri</h2>
+                <div class="relationship-diagram">
+                    <div class="relationship-grid">
+                        <div class="relationship-item">
+                            <div class="relationship-header">
+                                <i class="fas fa-users"></i>
+                                <h4>Users ↔ Departments</h4>
+                                <span class="relationship-type one-to-many">1:N</span>
+                            </div>
+                            <p>Bir departmanda birden fazla kullanıcı olabilir</p>
+                        </div>
+
+                        <div class="relationship-item">
+                            <div class="relationship-header">
+                                <i class="fas fa-users"></i>
+                                <h4>Users ↔ Users (Manager)</h4>
+                                <span class="relationship-type one-to-many">1:N</span>
+                            </div>
+                            <p>Bir yöneticinin birden fazla çalışanı olabilir</p>
+                        </div>
+
+                        <div class="relationship-item">
+                            <div class="relationship-header">
+                                <i class="fas fa-list-alt"></i>
+                                <h4>Users ↔ ActivityLogs</h4>
+                                <span class="relationship-type one-to-many">1:N</span>
+                            </div>
+                            <p>Bir kullanıcının birden fazla aktivite kaydı olabilir</p>
+                        </div>
+
+                        <div class="relationship-item">
+                            <div class="relationship-header">
+                                <i class="fas fa-tags"></i>
+                                <h4>Categories ↔ Categories</h4>
+                                <span class="relationship-type one-to-many">1:N</span>
+                            </div>
+                            <p>Kategoriler hiyerarşik yapıda olabilir</p>
+                        </div>
+
+                        <div class="relationship-item">
+                            <div class="relationship-header">
+                                <i class="fas fa-key"></i>
+                                <h4>Categories ↔ CategoryKeywords</h4>
+                                <span class="relationship-type one-to-many">1:N</span>
+                            </div>
+                            <p>Bir kategorinin birden fazla anahtar kelimesi olabilir</p>
+                        </div>
+
+                        <div class="relationship-item">
+                            <div class="relationship-header">
+                                <i class="fas fa-chart-bar"></i>
+                                <h4>Users ↔ Reports</h4>
+                                <span class="relationship-type one-to-many">1:N</span>
+                            </div>
+                            <p>Bir kullanıcının birden fazla raporu olabilir</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Veri Akış Şeması -->
+            <div class="db-section">
+                <h2><i class="fas fa-route"></i> Veri Akış Şeması</h2>
+                <div class="data-flow-diagram">
+                    <div class="flow-steps">
+                        <div class="flow-step">
+                            <div class="flow-step-number">1</div>
+                            <h4>Veri Toplama</h4>
+                            <p>Client ajanı pencere başlıkları ve uygulama bilgilerini toplar</p>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">2</div>
+                            <h4>Yerel Depolama</h4>
+                            <p>Veriler şifrelenerek yerel SQLite veritabanında saklanır</p>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">3</div>
+                            <h4>Sunucu Transferi</h4>
+                            <p>HTTPS ile güvenli şekilde sunucuya gönderilir</p>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">4</div>
+                            <h4>Veri İşleme</h4>
+                            <p>Kategorizasyon ve analiz işlemleri yapılır</p>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">5</div>
+                            <h4>Veritabanı Kaydı</h4>
+                            <p>İşlenmiş veriler SQL Server'a kaydedilir</p>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">6</div>
+                            <h4>Raporlama</h4>
+                            <p>Dashboard ve raporlar gerçek zamanlı oluşturulur</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- İndeksler ve Performans -->
+            <div class="db-section">
+                <h2><i class="fas fa-tachometer-alt"></i> İndeksler ve Performans Optimizasyonu</h2>
+                <div class="index-info">
+                    <h4><i class="fas fa-database"></i> Önerilen İndeksler</h4>
+                    <ul class="index-list">
+                        <li><strong>ActivityLogs:</strong> UserId, StartTime, EndTime (Composite Index)</li>
+                        <li><strong>ActivityLogs:</strong> CategoryId, StartTime (Composite Index)</li>
+                        <li><strong>ActivityLogs:</strong> ApplicationName (Non-clustered Index)</li>
+                        <li><strong>Users:</strong> EmployeeId (Unique Index)</li>
+                        <li><strong>Users:</strong> Email (Unique Index)</li>
+                        <li><strong>Users:</strong> DepartmentId (Non-clustered Index)</li>
+                        <li><strong>CategoryKeywords:</strong> Keyword, KeywordType (Composite Index)</li>
+                        <li><strong>Reports:</strong> UserId, GeneratedAt (Composite Index)</li>
+                    </ul>
+                </div>
+
+                <div class="index-info">
+                    <h4><i class="fas fa-shield-alt"></i> Veri Güvenliği</h4>
+                    <ul class="index-list">
+                        <li><strong>Şifreleme:</strong> Hassas veriler AES-256 ile şifrelenir</li>
+                        <li><strong>Yedekleme:</strong> Günlük tam yedekleme ve saatlik log yedekleme</li>
+                        <li><strong>Veri Saklama:</strong> 90 gün sonra otomatik arşivleme</li>
+                        <li><strong>Erişim Kontrolü:</strong> Row-level security ile kullanıcı bazlı erişim</li>
+                        <li><strong>Audit Log:</strong> Tüm veri değişiklikleri loglanır</li>
+                    </ul>
+                </div>
+
+                <div class="index-info">
+                    <h4><i class="fas fa-chart-line"></i> Performans Metrikleri</h4>
+                    <ul class="index-list">
+                        <li><strong>Veri Ekleme:</strong> 1000+ kayıt/saniye</li>
+                        <li><strong>Sorgu Yanıt Süresi:</strong> < 100ms (ortalama)</li>
+                        <li><strong>Eşzamanlı Kullanıcı:</strong> 1000+ kullanıcı</li>
+                        <li><strong>Veri Boyutu:</strong> 1TB+ veri desteği</li>
+                        <li><strong>Uptime:</strong> %99.9 kullanılabilirlik</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Entity Framework Modelleri -->
+            <div class="db-section">
+                <h2><i class="fas fa-code"></i> Entity Framework Core Modelleri</h2>
+                <div class="table-schema">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-cogs"></i>
+                            <h3>User Entity</h3>
+                        </div>
+                        <div class="table-description">
+                            Kullanıcı varlık modeli
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Navigation Properties</span>
+                                <span class="field-type">Virtual</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Department</span>
+                                <span class="field-type">Navigation</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Manager</span>
+                                <span class="field-type">Navigation</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Subordinates</span>
+                                <span class="field-type">Collection</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ActivityLogs</span>
+                                <span class="field-type">Collection</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Reports</span>
+                                <span class="field-type">Collection</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-cogs"></i>
+                            <h3>ActivityLog Entity</h3>
+                        </div>
+                        <div class="table-description">
+                            Aktivite kaydı varlık modeli
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Navigation Properties</span>
+                                <span class="field-type">Virtual</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">User</span>
+                                <span class="field-type">Navigation</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Category</span>
+                                <span class="field-type">Navigation</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Computed Properties</span>
+                                <span class="field-type">Duration</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-header">
+                            <i class="fas fa-cogs"></i>
+                            <h3>Category Entity</h3>
+                        </div>
+                        <div class="table-description">
+                            Kategori varlık modeli
+                        </div>
+                        <ul class="field-list">
+                            <li class="field-item">
+                                <span class="field-name">Navigation Properties</span>
+                                <span class="field-type">Virtual</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Parent</span>
+                                <span class="field-type">Navigation</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Children</span>
+                                <span class="field-type">Collection</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">Keywords</span>
+                                <span class="field-type">Collection</span>
+                            </li>
+                            <li class="field-item">
+                                <span class="field-name">ActivityLogs</span>
+                                <span class="field-type">Collection</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('.db-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Add hover effects to table cards
+        document.querySelectorAll('.table-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html> 
