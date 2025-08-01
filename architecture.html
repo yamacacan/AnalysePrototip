@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performans Analiz Sistemi - Sistem Mimarisi</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .architecture-page {
+            padding: 2rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .arch-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .arch-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .arch-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .arch-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .arch-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .arch-section h2 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+        }
+
+        .arch-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .arch-layer {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .arch-layer:hover {
+            transform: translateY(-5px);
+        }
+
+        .arch-layer h3 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .arch-layer ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .arch-layer li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .arch-layer li:last-child {
+            border-bottom: none;
+        }
+
+        .arch-layer i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .detailed-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .diagram-component {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .diagram-component.primary {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .diagram-component.secondary {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .diagram-component.tertiary {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .diagram-component i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .diagram-component h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .diagram-component p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .connection-line {
+            position: relative;
+            width: 100px;
+            height: 2px;
+            background: #667eea;
+            margin: 0 1rem;
+        }
+
+        .connection-line::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid #667eea;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        .data-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .flow-step {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .flow-step .step-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: bold;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .tech-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .tech-item i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .security-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .security-item {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .security-item i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .arch-container {
+                padding: 0 1rem;
+            }
+
+            .arch-section {
+                padding: 2rem 1rem;
+            }
+
+            .arch-header h1 {
+                font-size: 2rem;
+            }
+
+            .diagram-container {
+                flex-direction: column;
+            }
+
+            .connection-line {
+                width: 2px;
+                height: 50px;
+                margin: 1rem 0;
+            }
+
+            .back-btn {
+                top: 1rem;
+                left: 1rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="architecture-page">
+        <div class="arch-container">
+            <div class="arch-header">
+                <h1><i class="fas fa-sitemap"></i> Sistem Mimarisi</h1>
+                <p>Performans Analiz Sistemi'nin detaylı teknik mimarisi ve bileşenleri</p>
+            </div>
+
+            <!-- Genel Mimari -->
+            <div class="arch-section">
+                <h2><i class="fas fa-layer-group"></i> Genel Mimari Katmanları</h2>
+                <div class="arch-overview">
+                    <div class="arch-layer">
+                        <h3><i class="fas fa-desktop"></i> Sunum Katmanı (Presentation Layer)</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Web Dashboard (HTML5, CSS3, JavaScript)</li>
+                            <li><i class="fas fa-check"></i> Responsive Tasarım</li>
+                            <li><i class="fas fa-check"></i> Modern UI/UX</li>
+                            <li><i class="fas fa-check"></i> Gerçek Zamanlı Güncellemeler</li>
+                        </ul>
+                    </div>
+                    <div class="arch-layer">
+                        <h3><i class="fas fa-server"></i> Uygulama Katmanı (Application Layer)</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> REST API (.NET Core)</li>
+                            <li><i class="fas fa-check"></i> İş Mantığı (Business Logic)</li>
+                            <li><i class="fas fa-check"></i> Veri İşleme</li>
+                            <li><i class="fas fa-check"></i> Raporlama Motoru</li>
+                        </ul>
+                    </div>
+                    <div class="arch-layer">
+                        <h3><i class="fas fa-database"></i> Veri Katmanı (Data Layer)</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Entity Framework Core</li>
+                            <li><i class="fas fa-check"></i> SQL Server</li>
+                            <li><i class="fas fa-check"></i> Veri Şifreleme</li>
+                            <li><i class="fas fa-check"></i> Yedekleme Sistemi</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detaylı Sistem Diyagramı -->
+            <div class="arch-section">
+                <h2><i class="fas fa-project-diagram"></i> Detaylı Sistem Diyagramı</h2>
+                <div class="detailed-diagram">
+                    <div class="diagram-container">
+                        <div class="diagram-component primary">
+                            <i class="fas fa-desktop"></i>
+                            <h4>Client (Ajan)</h4>
+                            <p>Windows Service</p>
+                        </div>
+                        <div class="connection-line"></div>
+                        <div class="diagram-component secondary">
+                            <i class="fas fa-shield-alt"></i>
+                            <h4>Güvenlik</h4>
+                            <p>HTTPS/TLS</p>
+                        </div>
+                        <div class="connection-line"></div>
+                        <div class="diagram-component primary">
+                            <i class="fas fa-server"></i>
+                            <h4>API Gateway</h4>
+                            <p>Load Balancer</p>
+                        </div>
+                    </div>
+                    
+                    <div class="diagram-container">
+                        <div class="diagram-component tertiary">
+                            <i class="fas fa-cogs"></i>
+                            <h4>İş Mantığı</h4>
+                            <p>Veri İşleme</p>
+                        </div>
+                        <div class="connection-line"></div>
+                        <div class="diagram-component secondary">
+                            <i class="fas fa-database"></i>
+                            <h4>Veritabanı</h4>
+                            <p>SQL Server</p>
+                        </div>
+                        <div class="connection-line"></div>
+                        <div class="diagram-component tertiary">
+                            <i class="fas fa-chart-bar"></i>
+                            <h4>Analiz Motoru</h4>
+                            <p>Raporlama</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Veri Akışı -->
+            <div class="arch-section">
+                <h2><i class="fas fa-route"></i> Veri Akış Süreci</h2>
+                <div class="data-flow">
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <h4>Veri Toplama</h4>
+                        <p>Pencere başlıkları, aktif uygulamalar, kullanım süreleri</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <h4>Yerel Depolama</h4>
+                        <p>Geçici veri saklama ve şifreleme</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <h4>Güvenli Transfer</h4>
+                        <p>HTTPS ile sunucuya gönderim</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <h4>Veri İşleme</h4>
+                        <p>Kategorizasyon ve analiz</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">5</div>
+                        <h4>Raporlama</h4>
+                        <p>Dashboard ve raporların oluşturulması</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teknoloji Yığını -->
+            <div class="arch-section">
+                <h2><i class="fas fa-code"></i> Teknoloji Yığını</h2>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <i class="fab fa-microsoft"></i>
+                        <h4>.NET Core 6+</h4>
+                        <p>Backend Framework</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-database"></i>
+                        <h4>Entity Framework</h4>
+                        <p>ORM Framework</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-js"></i>
+                        <h4>JavaScript ES6+</h4>
+                        <p>Frontend Logic</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-html5"></i>
+                        <h4>HTML5</h4>
+                        <p>Markup Language</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-css3-alt"></i>
+                        <h4>CSS3</h4>
+                        <p>Styling</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-server"></i>
+                        <h4>SQL Server</h4>
+                        <p>Database</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>HTTPS/TLS</h4>
+                        <p>Security</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-windows"></i>
+                        <h4>Windows Service</h4>
+                        <p>Client Agent</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Güvenlik Özellikleri -->
+            <div class="arch-section">
+                <h2><i class="fas fa-lock"></i> Güvenlik Özellikleri</h2>
+                <div class="security-features">
+                    <div class="security-item">
+                        <i class="fas fa-key"></i>
+                        <h4>Veri Şifreleme</h4>
+                        <p>AES-256 şifreleme ile veri koruması</p>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-user-shield"></i>
+                        <h4>Yetkilendirme</h4>
+                        <p>Active Directory entegrasyonu</p>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-network-wired"></i>
+                        <h4>Güvenli İletişim</h4>
+                        <p>HTTPS/TLS 1.3 protokolü</p>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-trash-alt"></i>
+                        <h4>Veri Silme</h4>
+                        <p>Otomatik veri temizleme</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entegrasyon Noktaları -->
+            <div class="arch-section">
+                <h2><i class="fas fa-plug"></i> Entegrasyon Noktaları</h2>
+                <div class="arch-overview">
+                    <div class="arch-layer">
+                        <h3><i class="fas fa-users"></i> Active Directory</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Kullanıcı kimlik doğrulama</li>
+                            <li><i class="fas fa-check"></i> Organizasyon hiyerarşisi</li>
+                            <li><i class="fas fa-check"></i> Rol tabanlı erişim</li>
+                        </ul>
+                    </div>
+                    <div class="arch-layer">
+                        <h3><i class="fas fa-building"></i> HR Yazılımları</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Çalışan bilgileri</li>
+                            <li><i class="fas fa-check"></i> Departman yapısı</li>
+                            <li><i class="fas fa-check"></i> Performans metrikleri</li>
+                        </ul>
+                    </div>
+                    <div class="arch-layer">
+                        <h3><i class="fas fa-chart-line"></i> Raporlama Sistemleri</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Excel export</li>
+                            <li><i class="fas fa-check"></i> PDF raporları</li>
+                            <li><i class="fas fa-check"></i> API entegrasyonu</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('.arch-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Add hover effects to diagram components
+        document.querySelectorAll('.diagram-component').forEach(component => {
+            component.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+            
+            component.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html> 
